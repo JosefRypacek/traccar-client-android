@@ -1,16 +1,17 @@
-# [Traccar Client for Android](https://www.traccar.org/client)
+# Unofficial fork of Traccar Client for Android
 
-[![Get it on Google Play](http://www.tananaev.com/badges/google-play.svg)](https://play.google.com/store/apps/details?id=org.traccar.client) [![Get it on F-Droid](http://www.tananaev.com/badges/f-droid.svg)](https://f-droid.org/repository/browse/?fdid=org.traccar.client)
+This fork should have all features as origin. There are some more features to work as required.
 
-## Overview
+## Features
 
-Traccar Client is an Android GPS tracking application. It can work with Traccar open source server software.
+- different intervals for 'on battery' and 'charging' state
+- ability to checking 'distance' and 'angle' only while charging
 
-## Team
+### Author of original application
 
-- Anton Tananaev ([anton@traccar.org](mailto:anton@traccar.org))
+- Anton Tananaev
 
-## License
+### License
 
     Apache License, Version 2.0
 
