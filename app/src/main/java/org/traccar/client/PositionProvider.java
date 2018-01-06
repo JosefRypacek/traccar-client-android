@@ -1,5 +1,5 @@
 /*
- * Copyright 2013 - 2017 Anton Tananaev (anton.tananaev@gmail.com)
+ * Copyright 2013 - 2018 Anton Tananaev (anton.tananaev@gmail.com), Josef Rypacek (j.rypacek@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ import com.mapzen.android.lost.api.LocationRequest;
 import com.mapzen.android.lost.api.LocationServices;
 import com.mapzen.android.lost.api.LostApiClient;
 
-public class PositionProvider implements LostApiClient.ConnectionCallbacks, LocationListener {
+public class PositionProvider implements LostApiClient.ConnectionCallbacks, LocationListener, ChargingManager.ChargingHandler {
 
     private static final String TAG = PositionProvider.class.getSimpleName();
 
@@ -41,15 +41,21 @@ public class PositionProvider implements LostApiClient.ConnectionCallbacks, Loca
     }
 
     private final PositionListener listener;
+    private ChargingManager chargingManager;
 
     private final Context context;
     private SharedPreferences preferences;
     private LostApiClient apiClient;
 
     private String deviceId;
+    private long interval_battery;
+    private long interval_charging;
     private long interval;
     private double distance;
     private double angle;
+    private boolean distance_angle_charging;
+
+    private boolean distance_angle_allowed;
 
     private Location lastLocation;
 
@@ -60,12 +66,43 @@ public class PositionProvider implements LostApiClient.ConnectionCallbacks, Loca
         preferences = PreferenceManager.getDefaultSharedPreferences(context);
 
         deviceId = preferences.getString(MainFragment.KEY_DEVICE, "undefined");
-        interval = Long.parseLong(preferences.getString(MainFragment.KEY_INTERVAL, "600")) * 1000;
+        interval_battery = Long.parseLong(preferences.getString(MainFragment.KEY_INTERVAL, "600")) * 1000;
+        interval_charging = Long.parseLong(preferences.getString(MainFragment.KEY_INTERVAL_CHARGING, "60")) * 1000;
         distance = Integer.parseInt(preferences.getString(MainFragment.KEY_DISTANCE, "0"));
         angle = Integer.parseInt(preferences.getString(MainFragment.KEY_ANGLE, "0"));
+        distance_angle_charging = preferences.getBoolean(MainFragment.KEY_DISTANCE_ANGLE_CHARGING, false);
+
+        if(interval_charging > 0 || distance_angle_charging) {
+            chargingManager = new ChargingManager(context, this);
+        }
+    }
+
+    @Override
+    public void onChargingUpdate(boolean isCharging) {
+        int chargingString = R.string.status_power_disconnected;
+        if(isCharging) {
+            chargingString = R.string.status_power_connected;
+        }
+        StatusActivity.addMessage(context.getString(chargingString));
+
+        apiClient.disconnect();
+        setupChargingVariables(isCharging);
+        apiClient.connect();
+    }
+
+
+    private void setupChargingVariables(boolean isCharging){
+        distance_angle_allowed = distance_angle_charging ? isCharging : true;
+        interval = interval_charging > 0 && isCharging ? interval_charging : interval_battery;
     }
 
     public void startUpdates() {
+        boolean isCharging = chargingManager != null ? chargingManager.isCharging() : false;
+        setupChargingVariables(isCharging);
+        if(chargingManager != null) {
+            chargingManager.start();
+        }
+
         apiClient = new LostApiClient.Builder(context).addConnectionCallbacks(this).build();
         apiClient.connect();
     }
@@ -86,7 +123,7 @@ public class PositionProvider implements LostApiClient.ConnectionCallbacks, Loca
     public void onConnected() {
         LocationRequest request = LocationRequest.create()
                 .setPriority(getPriority(preferences.getString(MainFragment.KEY_ACCURACY, "medium")))
-                .setInterval(distance > 0 || angle > 0 ? MINIMUM_INTERVAL : interval);
+                .setInterval(distance_angle_allowed && (distance > 0 || angle > 0) ? MINIMUM_INTERVAL : interval);
 
         LocationServices.FusedLocationApi.requestLocationUpdates(apiClient, request, this);
     }
@@ -95,8 +132,8 @@ public class PositionProvider implements LostApiClient.ConnectionCallbacks, Loca
     public void onLocationChanged(Location location) {
         if (location != null && (lastLocation == null
                 || location.getTime() - lastLocation.getTime() >= interval
-                || distance > 0 && DistanceCalculator.distance(location.getLatitude(), location.getLongitude(), lastLocation.getLatitude(), lastLocation.getLongitude()) >= distance
-                || angle > 0 && Math.abs(location.getBearing() - lastLocation.getBearing()) >= angle)) {
+                || distance_angle_allowed && distance > 0 && DistanceCalculator.distance(location.getLatitude(), location.getLongitude(), lastLocation.getLatitude(), lastLocation.getLongitude()) >= distance
+                || distance_angle_allowed && angle > 0 && Math.abs(location.getBearing() - lastLocation.getBearing()) >= angle)) {
             Log.i(TAG, "location new");
             lastLocation = location;
             listener.onPositionUpdate(new Position(deviceId, location, getBatteryLevel(context)));
@@ -111,6 +148,10 @@ public class PositionProvider implements LostApiClient.ConnectionCallbacks, Loca
     }
 
     public void stopUpdates() {
+        if(chargingManager != null) {
+            chargingManager.stop();
+        }
+
         LocationServices.FusedLocationApi.removeLocationUpdates(apiClient, this);
 
         apiClient.disconnect();

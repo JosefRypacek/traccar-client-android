@@ -36,6 +36,13 @@
         android:title="@string/settings_interval_title" />
 
     <EditTextPreference
+        android:defaultValue="30"
+        android:key="interval_charging"
+        android:numeric="integer"
+        android:summary="@string/settings_interval_charging_summary"
+        android:title="@string/settings_interval_charging_title" />
+
+    <EditTextPreference
         android:defaultValue="0"
         android:key="distance"
         android:numeric="integer"
@@ -48,5 +55,11 @@
         android:numeric="integer"
         android:summary="@string/settings_angle_summary"
         android:title="@string/settings_angle_title" />
+
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="distance_angle_charging"
+        android:summary="@string/settings_distance_angle_charging_summary"
+        android:title="@string/settings_distance_angle_charging_title"/>
 
 </PreferenceScreen>

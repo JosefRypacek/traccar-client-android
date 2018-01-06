@@ -11,10 +11,14 @@
   <string name="settings_url_summary">Tracking server URL</string>
   <string name="settings_interval_title">Frequency</string>
   <string name="settings_interval_summary">Reporting interval in seconds</string>
+  <string name="settings_interval_charging_title">Frequency (charging)</string>
+  <string name="settings_interval_charging_summary">Reporting interval while charging in seconds</string>
   <string name="settings_distance_title">Distance</string>
   <string name="settings_distance_summary">Reporting distance in meters</string>
   <string name="settings_angle_title">Angle</string>
   <string name="settings_angle_summary">Reporting angle in degrees</string>
+  <string name="settings_distance_angle_charging_title">Distance and angle (charging)</string>
+  <string name="settings_distance_angle_charging_summary">Reporting by distance and angle only while charging</string>
   <string name="settings_status_title">Service status</string>
   <string name="settings_status_off">Start</string>
   <string name="settings_status_on">Stop</string>
@@ -40,6 +44,8 @@
   <string name="status_send_fail">Send failed</string>
   <string name="status_location_update">Location update</string>
   <string name="status_connectivity_change">Connectivity change</string>
+  <string name="status_power_connected">Charging change - plugged</string>
+  <string name="status_power_disconnected">Charging change - unplugged</string>
   <string name="hidden_app_name">Device Settings</string>
   <string name="hidden_alert">The app has been hidden. To open it again please dial 8722227 (TRACCAR).</string>
   <string name="error_msg_invalid_url">Please enter a valid http:// or https:// URL</string>

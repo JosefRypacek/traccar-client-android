@@ -1,5 +1,5 @@
 /*
- * Copyright 2012 - 2017 Anton Tananaev (anton.tananaev@gmail.com)
+ * Copyright 2012 - 2018 Anton Tananaev (anton.tananaev@gmail.com), Josef Rypacek (j.rypacek@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,6 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
@@ -56,8 +55,10 @@ public class MainFragment extends PreferenceFragment implements OnSharedPreferen
     public static final String KEY_DEVICE = "id";
     public static final String KEY_URL = "url";
     public static final String KEY_INTERVAL = "interval";
+    public static final String KEY_INTERVAL_CHARGING = "interval_charging";
     public static final String KEY_DISTANCE = "distance";
     public static final String KEY_ANGLE = "angle";
+    public static final String KEY_DISTANCE_ANGLE_CHARGING = "distance_angle_charging";
     public static final String KEY_ACCURACY = "accuracy";
     public static final String KEY_STATUS = "status";
 
@@ -123,6 +124,7 @@ public class MainFragment extends PreferenceFragment implements OnSharedPreferen
                 return false;
             }
         };
+        findPreference(KEY_INTERVAL_CHARGING).setOnPreferenceChangeListener(numberValidationListener);
         findPreference(KEY_DISTANCE).setOnPreferenceChangeListener(numberValidationListener);
         findPreference(KEY_ANGLE).setOnPreferenceChangeListener(numberValidationListener);
 
@@ -173,8 +175,10 @@ public class MainFragment extends PreferenceFragment implements OnSharedPreferen
         findPreference(KEY_DEVICE).setEnabled(enabled);
         findPreference(KEY_URL).setEnabled(enabled);
         findPreference(KEY_INTERVAL).setEnabled(enabled);
+        findPreference(KEY_INTERVAL_CHARGING).setEnabled(enabled);
         findPreference(KEY_DISTANCE).setEnabled(enabled);
         findPreference(KEY_ANGLE).setEnabled(enabled);
+        findPreference(KEY_DISTANCE_ANGLE_CHARGING).setEnabled(enabled);
         findPreference(KEY_ACCURACY).setEnabled(enabled);
     }
 
