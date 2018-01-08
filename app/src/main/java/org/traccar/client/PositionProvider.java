@@ -85,9 +85,11 @@ public class PositionProvider implements LostApiClient.ConnectionCallbacks, Loca
         }
         StatusActivity.addMessage(context.getString(chargingString));
 
-        apiClient.disconnect();
+        LocationServices.FusedLocationApi.removeLocationUpdates(apiClient, this);
         setupChargingVariables(isCharging);
-        apiClient.connect();
+        onConnected();
+
+
     }
 
 
