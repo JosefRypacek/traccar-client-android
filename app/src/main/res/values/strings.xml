@@ -17,7 +17,7 @@
   <string name="settings_distance_summary">Reporting distance in meters</string>
   <string name="settings_angle_title">Angle</string>
   <string name="settings_angle_summary">Reporting angle in degrees</string>
-  <string name="settings_distance_angle_charging_title">Distance and angle (charging)</string>
+  <string name="settings_distance_angle_charging_title">Distance &amp; angle (charging only)</string>
   <string name="settings_distance_angle_charging_summary">Reporting by distance and angle only while charging</string>
   <string name="settings_status_title">Service status</string>
   <string name="settings_status_off">Start</string>
