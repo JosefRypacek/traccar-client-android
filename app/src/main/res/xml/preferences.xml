@@ -62,4 +62,10 @@
         android:summary="@string/settings_distance_angle_charging_summary"
         android:title="@string/settings_distance_angle_charging_title"/>
 
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="power_as_ignition"
+        android:summary="@string/settings_power_as_ignition_summary"
+        android:title="@string/settings_power_as_ignition_title"/>
+
 </PreferenceScreen>

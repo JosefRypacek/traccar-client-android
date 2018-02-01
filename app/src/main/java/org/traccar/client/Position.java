@@ -39,6 +39,11 @@ public class Position {
         this.battery = battery;
     }
 
+    public Position(String deviceId, Location location, double battery, int ignition) {
+        this(deviceId, location, battery);
+        this.ignition = ignition;
+    }
+
     private long id;
 
     public long getId() {
@@ -137,6 +142,16 @@ public class Position {
 
     public void setBattery(double battery) {
         this.battery = battery;
+    }
+
+    private int ignition;
+
+    public int getIgnition() {
+        return ignition;
+    }
+
+    public void setIgnition(int ignition) {
+        this.ignition = ignition;
     }
 
 }

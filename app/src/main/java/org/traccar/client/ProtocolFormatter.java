@@ -35,6 +35,9 @@ public class ProtocolFormatter {
                 .appendQueryParameter("altitude", String.valueOf(position.getAltitude()))
                 .appendQueryParameter("accuracy", String.valueOf(position.getAccuracy()))
                 .appendQueryParameter("batt", String.valueOf(position.getBattery()));
+        if (position.getIgnition() != -1) {
+            builder.appendQueryParameter("ignition", String.valueOf(position.getIgnition() == 1));
+        }
 
         if (alarm != null) {
             builder.appendQueryParameter("alarm", alarm);

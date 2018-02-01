@@ -19,6 +19,8 @@
   <string name="settings_angle_summary">Reporting angle in degrees</string>
   <string name="settings_distance_angle_charging_title">Distance &amp; angle (charging only)</string>
   <string name="settings_distance_angle_charging_summary">Reporting by distance and angle only while charging</string>
+  <string name="settings_power_as_ignition_title">Use power as ignition</string>
+  <string name="settings_power_as_ignition_summary">Reporting ignition status based on charging (plugged) status</string>
   <string name="settings_status_title">Service status</string>
   <string name="settings_status_off">Start</string>
   <string name="settings_status_on">Stop</string>

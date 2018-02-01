@@ -54,6 +54,7 @@ public class PositionProvider implements LostApiClient.ConnectionCallbacks, Loca
     private double distance;
     private double angle;
     private boolean distance_angle_charging;
+    private boolean power_as_ignition;
 
     private boolean distance_angle_allowed;
 
@@ -73,8 +74,9 @@ public class PositionProvider implements LostApiClient.ConnectionCallbacks, Loca
         distance = Integer.parseInt(preferences.getString(MainFragment.KEY_DISTANCE, "0"));
         angle = Integer.parseInt(preferences.getString(MainFragment.KEY_ANGLE, "0"));
         distance_angle_charging = preferences.getBoolean(MainFragment.KEY_DISTANCE_ANGLE_CHARGING, false);
+        power_as_ignition = preferences.getBoolean(MainFragment.KEY_POWER_AS_IGNITION, false);
 
-        if(interval_charging > 0 || distance_angle_charging) {
+        if (interval_charging > 0 || distance_angle_charging || power_as_ignition) {
             chargingManager = new ChargingManager(context, this);
         }
     }
@@ -82,7 +84,7 @@ public class PositionProvider implements LostApiClient.ConnectionCallbacks, Loca
     @Override
     public void onChargingUpdate(boolean isCharging) {
         int chargingString = R.string.status_power_disconnected;
-        if(isCharging) {
+        if (isCharging) {
             chargingString = R.string.status_power_connected;
         }
         StatusActivity.addMessage(context.getString(chargingString));
@@ -93,15 +95,18 @@ public class PositionProvider implements LostApiClient.ConnectionCallbacks, Loca
     }
 
 
-    private void setupChargingVariables(boolean isCharging){
+    private void setupChargingVariables(boolean isCharging) {
         distance_angle_allowed = distance_angle_charging ? isCharging : true;
         interval = interval_charging > 0 && isCharging ? interval_charging : interval_battery;
+        if (power_as_ignition) {
+            lastLocation = null; // Clear lastLocation to send update ASAP
+        }
     }
 
     public void startUpdates() {
         boolean isCharging = chargingManager != null ? chargingManager.isCharging() : false;
         setupChargingVariables(isCharging);
-        if(chargingManager != null) {
+        if (chargingManager != null) {
             chargingManager.start();
         }
 
@@ -142,7 +147,7 @@ public class PositionProvider implements LostApiClient.ConnectionCallbacks, Loca
                 || distance_angle_allowed && angle > 0 && Math.abs(location.getBearing() - lastLocation.getBearing()) >= angle)) {
             Log.i(TAG, "location new");
             lastLocation = location;
-            listener.onPositionUpdate(new Position(deviceId, location, getBatteryLevel(context)));
+            listener.onPositionUpdate(new Position(deviceId, location, getBatteryLevel(context), getIgnitionStatus()));
         } else {
             Log.i(TAG, location != null ? "location ignored" : "location nil");
         }
@@ -154,7 +159,7 @@ public class PositionProvider implements LostApiClient.ConnectionCallbacks, Loca
     }
 
     public void stopUpdates() {
-        if(chargingManager != null) {
+        if (chargingManager != null) {
             chargingManager.stop();
         }
 
@@ -173,6 +178,13 @@ public class PositionProvider implements LostApiClient.ConnectionCallbacks, Loca
             return (level * 100.0) / scale;
         }
         return 0;
+    }
+
+    private int getIgnitionStatus() {
+        if (!power_as_ignition) {
+            return -1;
+        }
+        return chargingManager.isCharging() ? 1 : 0;
     }
 
 }

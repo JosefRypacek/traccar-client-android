@@ -6,6 +6,7 @@ This fork should have all features as origin. There are some more features to wo
 
 - different intervals for 'on battery' and 'charging' state
 - ability to checking 'distance' and 'angle' only while charging
+- option to report ignition state based on charging state
 
 ### Author of original application
 

@@ -40,7 +40,7 @@ public class ChargingManager extends BroadcastReceiver {
         void onChargingUpdate(boolean isCharging);
     }
 
-    public boolean isCharging(){
+    public boolean isCharging() {
         IntentFilter filter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
         Intent batteryStatus = context.registerReceiver(null, filter);
         int pluggedStatus = batteryStatus.getIntExtra(BatteryManager.EXTRA_PLUGGED, -1);
@@ -61,7 +61,7 @@ public class ChargingManager extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         boolean isCharging = false;
-        if (intent.getAction().equals(Intent.ACTION_POWER_CONNECTED)){
+        if (intent.getAction().equals(Intent.ACTION_POWER_CONNECTED)) {
             isCharging = true;
         }
 
