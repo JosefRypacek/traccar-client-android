@@ -7,6 +7,12 @@ This fork should have all features as origin. There are some more features to wo
 - different intervals for 'on battery' and 'charging' state
 - ability to checking 'distance' and 'angle' only while charging
 - option to report ignition state based on charging state
+- use real POST request with POST-style data
+
+## Not implemented features
+
+- gzip compression of data (longer than 150 chars) - server doesn't support gzip
+- HTTP headers optimization (remove useless headers) - HttpURLConnection doesn't support it
 
 ### Author of original application
 
