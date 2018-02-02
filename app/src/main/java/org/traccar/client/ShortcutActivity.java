@@ -120,10 +120,9 @@ public class ShortcutActivity extends AppCompatActivity implements LostApiClient
                     preferences.getString(MainFragment.KEY_DEVICE, null),
                     location, PositionProvider.getBatteryLevel(this));
 
-            String request = ProtocolFormatter.formatRequest(
-                    preferences.getString(MainFragment.KEY_URL, null), position, ALARM_SOS);
+            String query = ProtocolFormatter.formatRequest(position, ALARM_SOS);
 
-            RequestManager.sendRequestAsync(request, new RequestManager.RequestHandler() {
+            RequestManager.sendRequestAsync(preferences.getString(MainFragment.KEY_URL, null), query, new RequestManager.RequestHandler() {
                 @Override
                 public void onComplete(boolean success) {
                     if (success) {

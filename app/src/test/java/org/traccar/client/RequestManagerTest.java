@@ -17,7 +17,7 @@ public class RequestManagerTest {
     @Test
     public void testSendRequest() throws Exception {
 
-        assertTrue(RequestManager.sendRequest("http://www.google.com"));
+        assertTrue(RequestManager.sendRequest("http://www.google.com", ""));
 
     }
 
