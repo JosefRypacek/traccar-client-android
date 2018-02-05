@@ -9,6 +9,11 @@ This fork should have all features as origin. There are some more features to wo
 - option to report ignition state based on charging state
 - use real POST request with POST-style data
 
+## Todo
+- check accuracy of 'accuracy' - there is always 0 on Android 4.3 with GPS only selected
+- temperature reporting - battery / ambient temperature - deviceTemp / temp0 / temp1
+- use accelerometer to detect motion and update GPS (is this more power efficent? is this needed when using different interval for 'charging' state?)
+
 ## Not implemented features
 
 - gzip compression of data (longer than 150 chars) - server doesn't support gzip
