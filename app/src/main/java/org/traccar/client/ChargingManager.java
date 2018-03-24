@@ -28,12 +28,10 @@ public class ChargingManager extends BroadcastReceiver {
 
     private Context context;
     private ChargingHandler handler;
-    private BatteryManager batteryManager;
 
     public ChargingManager(Context context, ChargingHandler handler) {
         this.context = context;
         this.handler = handler;
-        batteryManager = (BatteryManager) context.getSystemService(Context.BATTERY_SERVICE);
     }
 
     public interface ChargingHandler {
