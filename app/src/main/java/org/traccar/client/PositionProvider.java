@@ -42,6 +42,7 @@ public class PositionProvider implements LostApiClient.ConnectionCallbacks, Loca
 
     private final PositionListener listener;
     private ChargingManager chargingManager;
+    private TemperatureManager temperatureManager;
 
     private final Context context;
     private SharedPreferences preferences;
@@ -55,6 +56,7 @@ public class PositionProvider implements LostApiClient.ConnectionCallbacks, Loca
     private double angle;
     private boolean distance_angle_charging;
     private boolean power_as_ignition;
+    private boolean temperatureMonitoring;
 
     private boolean distance_angle_allowed;
 
@@ -75,9 +77,13 @@ public class PositionProvider implements LostApiClient.ConnectionCallbacks, Loca
         angle = Integer.parseInt(preferences.getString(MainFragment.KEY_ANGLE, "0"));
         distance_angle_charging = preferences.getBoolean(MainFragment.KEY_DISTANCE_ANGLE_CHARGING, false);
         power_as_ignition = preferences.getBoolean(MainFragment.KEY_POWER_AS_IGNITION, false);
+        temperatureMonitoring = preferences.getBoolean(MainFragment.KEY_TEMPERATURE_MONITORING, false);
 
         if (interval_charging > 0 || distance_angle_charging || power_as_ignition) {
             chargingManager = new ChargingManager(context, this);
+        }
+        if(temperatureMonitoring) {
+            temperatureManager = new TemperatureManager(context);
         }
     }
 
@@ -108,6 +114,9 @@ public class PositionProvider implements LostApiClient.ConnectionCallbacks, Loca
         setupChargingVariables(isCharging);
         if (chargingManager != null) {
             chargingManager.start();
+        }
+        if(temperatureManager != null) {
+            temperatureManager.start();
         }
 
         started = true;
@@ -147,7 +156,7 @@ public class PositionProvider implements LostApiClient.ConnectionCallbacks, Loca
                 || distance_angle_allowed && angle > 0 && Math.abs(location.getBearing() - lastLocation.getBearing()) >= angle)) {
             Log.i(TAG, "location new");
             lastLocation = location;
-            listener.onPositionUpdate(new Position(deviceId, location, getBatteryLevel(context), getIgnitionStatus()));
+            listener.onPositionUpdate(new Position(deviceId, location, getBatteryLevel(context), getIgnitionStatus(), getTemperature()));
         } else {
             Log.i(TAG, location != null ? "location ignored" : "location nil");
         }
@@ -161,6 +170,9 @@ public class PositionProvider implements LostApiClient.ConnectionCallbacks, Loca
     public void stopUpdates() {
         if (chargingManager != null) {
             chargingManager.stop();
+        }
+        if(temperatureManager != null) {
+            temperatureManager.stop();
         }
 
         if (apiClient.isConnected()) {
@@ -185,6 +197,13 @@ public class PositionProvider implements LostApiClient.ConnectionCallbacks, Loca
             return -1;
         }
         return chargingManager.isCharging() ? 1 : 0;
+    }
+
+    private float getTemperature() {
+        if (!temperatureMonitoring) {
+            return Float.NaN;
+        }
+        return temperatureManager.getLastTemperature();
     }
 
 }

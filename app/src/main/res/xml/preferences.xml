@@ -68,4 +68,10 @@
         android:summary="@string/settings_power_as_ignition_summary"
         android:title="@string/settings_power_as_ignition_title"/>
 
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="temperature_monitoring"
+        android:summary="@string/settings_temperature_monitoring_summary"
+        android:title="@string/settings_temperature_monitoring_title"/>
+
 </PreferenceScreen>

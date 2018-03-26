@@ -39,9 +39,10 @@ public class Position {
         this.battery = battery;
     }
 
-    public Position(String deviceId, Location location, double battery, int ignition) {
+    public Position(String deviceId, Location location, double battery, int ignition, float temperature) {
         this(deviceId, location, battery);
         this.ignition = ignition;
+        this.temperature = temperature;
     }
 
     private long id;
@@ -152,6 +153,16 @@ public class Position {
 
     public void setIgnition(int ignition) {
         this.ignition = ignition;
+    }
+
+    private float temperature;
+
+    public float getTemperature() {
+        return temperature;
+    }
+
+    public void setTemperature(float temperature) {
+        this.temperature = temperature;
     }
 
 }

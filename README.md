@@ -7,11 +7,11 @@ This fork should have all features as origin. There are some more features to wo
 - different intervals for 'on battery' and 'charging' state
 - ability to checking 'distance' and 'angle' only while charging
 - option to report ignition state based on charging state
-- use real POST request with POST-style data
+- ability to report device temperature using ambient temperature (if available, NOT TESTED) or battery temperature
+- use real POST request with POST-style data (this is not as useful as I thought)
 
 ## Todo
 - check accuracy of 'accuracy' - there is always 0 on Android 4.3 with GPS only selected
-- temperature reporting - battery / ambient temperature - deviceTemp / temp0 / temp1
 - use accelerometer to detect motion and update GPS (is this more power efficent? is this needed when using different interval for 'charging' state?)
 
 ## Not implemented features

@@ -60,6 +60,7 @@ public class MainFragment extends PreferenceFragment implements OnSharedPreferen
     public static final String KEY_ANGLE = "angle";
     public static final String KEY_DISTANCE_ANGLE_CHARGING = "distance_angle_charging";
     public static final String KEY_POWER_AS_IGNITION = "power_as_ignition";
+    public static final String KEY_TEMPERATURE_MONITORING = "temperature_monitoring";
     public static final String KEY_ACCURACY = "accuracy";
     public static final String KEY_STATUS = "status";
 
@@ -174,6 +175,7 @@ public class MainFragment extends PreferenceFragment implements OnSharedPreferen
         findPreference(KEY_ANGLE).setEnabled(enabled);
         findPreference(KEY_DISTANCE_ANGLE_CHARGING).setEnabled(enabled);
         findPreference(KEY_POWER_AS_IGNITION).setEnabled(enabled);
+        findPreference(KEY_TEMPERATURE_MONITORING).setEnabled(enabled);
         findPreference(KEY_ACCURACY).setEnabled(enabled);
     }
 

@@ -38,6 +38,10 @@ public class ProtocolFormatter {
             builder.appendQueryParameter("ignition", String.valueOf(position.getIgnition() == 1));
         }
 
+        if (!Float.isNaN(position.getTemperature())) {
+            builder.appendQueryParameter("deviceTemp", String.valueOf(position.getTemperature()));
+        }
+
         if (alarm != null) {
             builder.appendQueryParameter("alarm", alarm);
         }
