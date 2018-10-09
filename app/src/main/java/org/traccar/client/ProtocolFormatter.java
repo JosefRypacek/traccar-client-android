@@ -42,6 +42,10 @@ public class ProtocolFormatter {
             builder.appendQueryParameter("deviceTemp", String.valueOf(position.getTemperature()));
         }
 
+        if (position.getMock()) {
+            builder.appendQueryParameter("mock", String.valueOf(position.getMock()));
+        }
+
         if (alarm != null) {
             builder.appendQueryParameter("alarm", alarm);
         }

@@ -1,16 +1,16 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 27
-    buildToolsVersion '27.0.3'
+    compileSdkVersion 28
+    buildToolsVersion '28.0.2'
 
     defaultConfig {
         applicationId "org.traccar.client"
         buildConfigField "boolean", "HIDDEN_APP", "false"
         minSdkVersion 15
-        targetSdkVersion 27
-        versionCode 47
-        versionName '5.10'
+        targetSdkVersion 28
+        versionCode 51
+        versionName '5.14'
     }
 
     lintOptions {
@@ -26,15 +26,20 @@ android {
             buildConfigField "boolean", "HIDDEN_APP", "true"
         }
     }
+
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
 }
 
 dependencies {
-    compile 'com.android.support:design:27.1.0'
-    compile 'com.mapzen.android:lost:3.0.4'
-    testCompile 'junit:junit:4.12'
-    testCompile 'org.robolectric:robolectric:3.6.1'
-    googleCompile 'com.google.firebase:firebase-core:11.8.0'
-    googleCompile 'com.crashlytics.sdk.android:crashlytics:2.9.1'
+    implementation 'com.android.support:design:28.0.0-rc02'
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'org.robolectric:robolectric:3.8'
+    googleImplementation 'com.google.firebase:firebase-core:16.0.3'
+    googleImplementation 'com.crashlytics.sdk.android:crashlytics:2.9.5'
 }
 
 if (getGradle().getStartParameter().getTaskRequests().toString().contains("Google")) {

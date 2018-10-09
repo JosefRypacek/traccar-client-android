@@ -27,7 +27,7 @@ import java.util.Date;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
 
-    public static final int DATABASE_VERSION = 2002;
+    public static final int DATABASE_VERSION = 3000;
     public static final String DATABASE_NAME = "traccar.db";
 
     public interface DatabaseHandler<T> {
@@ -82,12 +82,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "accuracy REAL," +
                 "battery REAL," +
                 "ignition INTEGER," +
-                "temperature REAL" +
-        ")");
+                "temperature REAL," +
+                "mock INTEGER)");
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        db.execSQL("DROP TABLE IF EXISTS position;");
+        onCreate(db);
+    }
+
+    public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL("DROP TABLE IF EXISTS position;");
         onCreate(db);
     }
@@ -105,6 +110,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put("battery", position.getBattery());
         values.put("ignition", position.getIgnition());
         values.put("temperature", position.getTemperature());
+        values.put("mock", position.getMock() ? 1 : 0);
 
         db.insertOrThrow("position", null, values);
     }
@@ -140,6 +146,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 position.setBattery(cursor.getDouble(cursor.getColumnIndex("battery")));
                 position.setIgnition(cursor.getInt(cursor.getColumnIndex("ignition")));
                 position.setTemperature(cursor.getFloat(cursor.getColumnIndex("temperature")));
+                position.setMock(cursor.getInt(cursor.getColumnIndex("mock")) > 0);
 
             } else {
                 return null;

@@ -20,17 +20,19 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.location.Criteria;
 import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.BatteryManager;
+import android.os.Bundle;
+import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.widget.Toast;
 
-import com.mapzen.android.lost.api.LocationListener;
-import com.mapzen.android.lost.api.LocationRequest;
-import com.mapzen.android.lost.api.LocationServices;
-import com.mapzen.android.lost.api.LostApiClient;
 
-public class PositionProvider implements LostApiClient.ConnectionCallbacks, LocationListener, ChargingManager.ChargingHandler {
+public class PositionProvider implements LocationListener, ChargingManager.ChargingHandler {
 
     private static final String TAG = PositionProvider.class.getSimpleName();
 
@@ -46,7 +48,7 @@ public class PositionProvider implements LostApiClient.ConnectionCallbacks, Loca
 
     private final Context context;
     private SharedPreferences preferences;
-    private LostApiClient apiClient;
+    private LocationManager locationManager;
 
     private String deviceId;
     private long interval_battery;
@@ -62,11 +64,11 @@ public class PositionProvider implements LostApiClient.ConnectionCallbacks, Loca
 
     private Location lastLocation;
 
-    private boolean started;
-
     public PositionProvider(Context context, PositionListener listener) {
         this.context = context;
         this.listener = listener;
+
+        locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
 
         preferences = PreferenceManager.getDefaultSharedPreferences(context);
 
@@ -95,9 +97,13 @@ public class PositionProvider implements LostApiClient.ConnectionCallbacks, Loca
         }
         StatusActivity.addMessage(context.getString(chargingString));
 
-        LocationServices.FusedLocationApi.removeLocationUpdates(apiClient, this);
-        setupChargingVariables(isCharging);
-        onConnected();
+//        LocationServices.FusedLocationApi.removeLocationUpdates(apiClient, this);
+//        setupChargingVariables(isCharging);
+//        onConnected();
+
+//        can use this way????
+        stopUpdates();
+        startUpdates();
     }
 
 
@@ -109,6 +115,7 @@ public class PositionProvider implements LostApiClient.ConnectionCallbacks, Loca
         }
     }
 
+    @SuppressLint("MissingPermission")
     public void startUpdates() {
         boolean isCharging = chargingManager != null ? chargingManager.isCharging() : false;
         setupChargingVariables(isCharging);
@@ -119,40 +126,40 @@ public class PositionProvider implements LostApiClient.ConnectionCallbacks, Loca
             temperatureManager.start();
         }
 
-        started = true;
-        apiClient = new LostApiClient.Builder(context).addConnectionCallbacks(this).build();
-        apiClient.connect();
+        try {
+            locationManager.requestLocationUpdates(
+                    distance_angle_allowed && (distance > 0 || angle > 0) ? MINIMUM_INTERVAL : interval, 0,
+                    getCriteria(preferences.getString(MainFragment.KEY_ACCURACY, "medium")),
+                    this, Looper.myLooper());
+        } catch (RuntimeException e) {
+            Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();
+        }
     }
 
-    private int getPriority(String accuracy) {
+    public static Criteria getCriteria(String accuracy) {
+        Criteria criteria = new Criteria();
         switch (accuracy) {
             case "high":
-                return LocationRequest.PRIORITY_HIGH_ACCURACY;
+                criteria.setHorizontalAccuracy(Criteria.ACCURACY_HIGH);
+                criteria.setPowerRequirement(Criteria.POWER_HIGH);
+                break;
             case "low":
-                return LocationRequest.PRIORITY_LOW_POWER;
+                criteria.setHorizontalAccuracy(Criteria.ACCURACY_LOW);
+                criteria.setPowerRequirement(Criteria.POWER_LOW);
+                break;
             default:
-                return LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY;
+                criteria.setHorizontalAccuracy(Criteria.ACCURACY_MEDIUM);
+                criteria.setPowerRequirement(Criteria.POWER_MEDIUM);
+                break;
         }
-    }
-
-    @SuppressLint("MissingPermission")
-    @Override
-    public void onConnected() {
-        if (started) {
-            LocationRequest request = LocationRequest.create()
-                    .setPriority(getPriority(preferences.getString(MainFragment.KEY_ACCURACY, "medium")))
-                    .setInterval(distance_angle_allowed && (distance > 0 || angle > 0) ? MINIMUM_INTERVAL : interval);
-            LocationServices.FusedLocationApi.requestLocationUpdates(apiClient, request, this);
-        } else {
-            apiClient.disconnect();
-        }
+        return criteria;
     }
 
     @Override
     public void onLocationChanged(Location location) {
         if (location != null && (lastLocation == null
                 || location.getTime() - lastLocation.getTime() >= interval
-                || distance_angle_allowed && distance > 0 && DistanceCalculator.distance(location.getLatitude(), location.getLongitude(), lastLocation.getLatitude(), lastLocation.getLongitude()) >= distance
+                || distance_angle_allowed && distance > 0 && location.distanceTo(lastLocation) >= distance
                 || distance_angle_allowed && angle > 0 && Math.abs(location.getBearing() - lastLocation.getBearing()) >= angle)) {
             Log.i(TAG, "location new");
             lastLocation = location;
@@ -163,8 +170,15 @@ public class PositionProvider implements LostApiClient.ConnectionCallbacks, Loca
     }
 
     @Override
-    public void onConnectionSuspended() {
-        Log.i(TAG, "lost client suspended");
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
     }
 
     public void stopUpdates() {
@@ -175,11 +189,7 @@ public class PositionProvider implements LostApiClient.ConnectionCallbacks, Loca
             temperatureManager.stop();
         }
 
-        if (apiClient.isConnected()) {
-            LocationServices.FusedLocationApi.removeLocationUpdates(apiClient, this);
-            apiClient.disconnect();
-        }
-        started = false;
+        locationManager.removeUpdates(this);
     }
 
     public static double getBatteryLevel(Context context) {

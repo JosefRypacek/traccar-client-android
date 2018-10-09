@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 - 2017 Anton Tananaev (anton.tananaev@gmail.com)
+ * Copyright 2015 - 2018 Anton Tananaev (anton.tananaev@gmail.com)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@ package org.traccar.client;
 
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.Build;
 
 import java.util.Date;
 
@@ -37,6 +38,9 @@ public class Position {
             accuracy = location.getAccuracy();
         }
         this.battery = battery;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            this.mock = location.isFromMockProvider();
+        }
     }
 
     public Position(String deviceId, Location location, double battery, int ignition, float temperature) {
@@ -163,6 +167,16 @@ public class Position {
 
     public void setTemperature(float temperature) {
         this.temperature = temperature;
+    }
+
+    private boolean mock;
+
+    public boolean getMock() {
+        return mock;
+    }
+
+    public void setMock(boolean mock) {
+        this.mock = mock;
     }
 
 }
