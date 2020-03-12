@@ -18,7 +18,6 @@ package org.traccar.client;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -42,7 +41,7 @@ public class RequestManager {
 
         @Override
         protected Boolean doInBackground(String... request) {
-            return sendRequest(request[0], request[1]);
+            return sendRequest(request[0]);
         }
 
         @Override
@@ -51,21 +50,15 @@ public class RequestManager {
         }
     }
 
-    public static boolean sendRequest(String serverUrl, String query) {
+    public static boolean sendRequest(String request) {
         InputStream inputStream = null;
         try {
-            URL url = new URL(serverUrl);
+            URL url = new URL(request);
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setReadTimeout(TIMEOUT);
             connection.setConnectTimeout(TIMEOUT);
             connection.setRequestMethod("POST");
-
-            connection.setDoOutput(true);
-            DataOutputStream dStream = new DataOutputStream(connection.getOutputStream());
-            dStream.writeBytes(query);
-            dStream.flush();
-            dStream.close();
-
+            connection.connect();
             inputStream = connection.getInputStream();
             while (inputStream.read() != -1);
             return true;
@@ -82,9 +75,9 @@ public class RequestManager {
         }
     }
 
-    public static void sendRequestAsync(String url, String query, RequestHandler handler) {
+    public static void sendRequestAsync(String request, RequestHandler handler) {
         RequestAsyncTask task = new RequestAsyncTask(handler);
-        task.execute(url, query);
+        task.execute(request);
     }
 
 }

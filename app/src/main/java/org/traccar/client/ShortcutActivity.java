@@ -147,9 +147,10 @@ public class ShortcutActivity extends AppCompatActivity {
                 preferences.getString(MainFragment.KEY_DEVICE, null),
                 location, PositionProvider.getBatteryLevel(this));
 
-        String request = ProtocolFormatter.formatRequest(position, ALARM_SOS);
+        String request = ProtocolFormatter.formatRequest(
+                preferences.getString(MainFragment.KEY_URL, null), position, ALARM_SOS);
 
-        RequestManager.sendRequestAsync(preferences.getString(MainFragment.KEY_URL, null), request, new RequestManager.RequestHandler() {
+        RequestManager.sendRequestAsync(request, new RequestManager.RequestHandler() {
             @Override
             public void onComplete(boolean success) {
                 if (success) {
