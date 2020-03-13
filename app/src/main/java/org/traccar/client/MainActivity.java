@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Anton Tananaev (anton.tananaev@gmail.com)
+ * Copyright 2017 Anton Tananaev (anton@traccar.org)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 package org.traccar.client;
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (savedInstanceState == null) {
-            getFragmentManager().beginTransaction().replace(android.R.id.content, new MainFragment()).commit();
+            getSupportFragmentManager().beginTransaction().replace(android.R.id.content, new MainFragment()).commit();
         }
     }
 

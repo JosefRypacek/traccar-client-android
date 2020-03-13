@@ -1,5 +1,9 @@
 /*
+<<<<<<< HEAD
  * Copyright 2013 - 2018 Anton Tananaev (anton.tananaev@gmail.com), Josef Rypacek (j.rypacek@gmail.com)
+=======
+ * Copyright 2013 - 2019 Anton Tananaev (anton@traccar.org)
+>>>>>>> upstream/master
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,60 +19,51 @@
  */
 package org.traccar.client;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.location.Criteria;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.BatteryManager;
-import android.os.Bundle;
-import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.widget.Toast;
 
-
-public class PositionProvider implements LocationListener, ChargingManager.ChargingHandler {
+public abstract class PositionProvider implements ChargingManager.ChargingHandler {
 
     private static final String TAG = PositionProvider.class.getSimpleName();
 
-    private static final int MINIMUM_INTERVAL = 1000;
+    protected static final int MINIMUM_INTERVAL = 1000;
 
     public interface PositionListener {
         void onPositionUpdate(Position position);
+        void onPositionError(Throwable error);
     }
 
-    private final PositionListener listener;
-    private ChargingManager chargingManager;
-    private TemperatureManager temperatureManager;
+    protected final PositionListener listener;
 
-    private final Context context;
-    private SharedPreferences preferences;
-    private LocationManager locationManager;
+    protected ChargingManager chargingManager;
+    protected TemperatureManager temperatureManager;
 
-    private String deviceId;
-    private long interval_battery;
-    private long interval_charging;
-    private long interval;
-    private double distance;
-    private double angle;
-    private boolean distance_angle_charging;
-    private boolean power_as_ignition;
-    private boolean temperatureMonitoring;
+    protected final Context context;
+    protected SharedPreferences preferences;
 
-    private boolean distance_angle_allowed;
+    protected String deviceId;
+    protected long interval;
+    protected double distance;
+    protected double angle;
 
-    private Location lastLocation;
+    protected long interval_battery;
+    protected long interval_charging;
+    protected boolean distance_angle_charging;
+    protected boolean power_as_ignition;
+    protected boolean temperatureMonitoring;
+    protected boolean distance_angle_allowed;
+
+    protected Location lastLocation;
 
     public PositionProvider(Context context, PositionListener listener) {
         this.context = context;
         this.listener = listener;
-
-        locationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
 
         preferences = PreferenceManager.getDefaultSharedPreferences(context);
 
@@ -89,25 +84,8 @@ public class PositionProvider implements LocationListener, ChargingManager.Charg
         }
     }
 
-    @Override
-    public void onChargingUpdate(boolean isCharging) {
-        int chargingString = R.string.status_power_disconnected;
-        if (isCharging) {
-            chargingString = R.string.status_power_connected;
-        }
-        StatusActivity.addMessage(context.getString(chargingString));
 
-//        LocationServices.FusedLocationApi.removeLocationUpdates(apiClient, this);
-//        setupChargingVariables(isCharging);
-//        onConnected();
-
-//        can use this way????
-        stopUpdates();
-        startUpdates();
-    }
-
-
-    private void setupChargingVariables(boolean isCharging) {
+    protected void setupChargingVariables(boolean isCharging) {
         distance_angle_allowed = distance_angle_charging ? isCharging : true;
         interval = interval_charging > 0 && isCharging ? interval_charging : interval_battery;
         if (power_as_ignition) {
@@ -115,48 +93,13 @@ public class PositionProvider implements LocationListener, ChargingManager.Charg
         }
     }
 
-    @SuppressLint("MissingPermission")
-    public void startUpdates() {
-        boolean isCharging = chargingManager != null ? chargingManager.isCharging() : false;
-        setupChargingVariables(isCharging);
-        if (chargingManager != null) {
-            chargingManager.start();
-        }
-        if(temperatureManager != null) {
-            temperatureManager.start();
-        }
+    public abstract void startUpdates();
 
-        try {
-            locationManager.requestLocationUpdates(
-                    distance_angle_allowed && (distance > 0 || angle > 0) ? MINIMUM_INTERVAL : interval, 0,
-                    getCriteria(preferences.getString(MainFragment.KEY_ACCURACY, "medium")),
-                    this, Looper.myLooper());
-        } catch (RuntimeException e) {
-            Toast.makeText(context, e.getMessage(), Toast.LENGTH_LONG).show();
-        }
-    }
+    public abstract void stopUpdates();
 
-    public static Criteria getCriteria(String accuracy) {
-        Criteria criteria = new Criteria();
-        switch (accuracy) {
-            case "high":
-                criteria.setHorizontalAccuracy(Criteria.ACCURACY_HIGH);
-                criteria.setPowerRequirement(Criteria.POWER_HIGH);
-                break;
-            case "low":
-                criteria.setHorizontalAccuracy(Criteria.ACCURACY_LOW);
-                criteria.setPowerRequirement(Criteria.POWER_LOW);
-                break;
-            default:
-                criteria.setHorizontalAccuracy(Criteria.ACCURACY_MEDIUM);
-                criteria.setPowerRequirement(Criteria.POWER_MEDIUM);
-                break;
-        }
-        return criteria;
-    }
+    public abstract void requestSingleLocation();
 
-    @Override
-    public void onLocationChanged(Location location) {
+    protected void processLocation(Location location) {
         if (location != null && (lastLocation == null
                 || location.getTime() - lastLocation.getTime() >= interval
                 || distance_angle_allowed && distance > 0 && location.distanceTo(lastLocation) >= distance
@@ -169,30 +112,7 @@ public class PositionProvider implements LocationListener, ChargingManager.Charg
         }
     }
 
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-    }
-
-    @Override
-    public void onProviderEnabled(String provider) {
-    }
-
-    @Override
-    public void onProviderDisabled(String provider) {
-    }
-
-    public void stopUpdates() {
-        if (chargingManager != null) {
-            chargingManager.stop();
-        }
-        if(temperatureManager != null) {
-            temperatureManager.stop();
-        }
-
-        locationManager.removeUpdates(this);
-    }
-
-    public static double getBatteryLevel(Context context) {
+    protected static double getBatteryLevel(Context context) {
         Intent batteryIntent = context.registerReceiver(null, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
         if (batteryIntent != null) {
             int level = batteryIntent.getIntExtra(BatteryManager.EXTRA_LEVEL, 0);
